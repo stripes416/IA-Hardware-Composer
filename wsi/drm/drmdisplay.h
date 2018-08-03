@@ -14,6 +14,11 @@
 // limitations under the License.
 */
 
+/**
+ * \file
+ *
+ *
+ */
 #ifndef WSI_DRMDISPLAY_H_
 #define WSI_DRMDISPLAY_H_
 
@@ -39,90 +44,299 @@ class NativeBufferHandler;
 class GpuDevice;
 struct HwcLayer;
 
+/**
+ *
+ */
 class DrmDisplay : public PhysicalDisplay {
  public:
+  /**
+   * DrmDisplay constructor
+   *
+   * Params gpu_fd and pipe_id are internally passed to the constructor of the
+   * PhysicalDisplay class
+   *
+   * @param gpu_fd gpu file descriptor
+   * @param pipe_id id number of pipe used
+   * @param crtc_id
+   * @param manager
+   */
   DrmDisplay(uint32_t gpu_fd, uint32_t pipe_id, uint32_t crtc_id,
              DrmDisplayManager *manager);
+
+  /**
+   * DrmDisplay destructor
+   *
+   * Checks if blob_id or old_blob_id exists, if so - destroys them, and sets
+   * the display_queue_ power mode to kOff
+   */
   ~DrmDisplay() override;
 
+  /**
+   * Returns success / failure status of a specified attribute and setting
+   * *value equal to a determined result.
+   *
+   * If the preferred modes_ array is empty, calls the parent implementation of
+   * GetDisplayAttribute(), which sets *value equal to a predetermined value.
+   * If the preferred modes_ array is not empty, sets *value equal to a
+   * calculated result, dependent on the attribute given. Else, sets *value = -1
+   * and returns false.
+   *
+   * @param config index for the modes_ array
+   * @param attribute specified display attributes
+   * @param value pointer to 'some' requested value of a specified attribute
+   * @return true if specified attribute was expected and set *value to a
+   * calculated result
+   * @return false if specified attribute was not expected and set *value to -1
+   */
   bool GetDisplayAttribute(uint32_t config, HWCDisplayAttribute attribute,
                            int32_t *value) override;
 
+  /**
+   * 
+   *
+   * @param config
+   * @param attribute
+   * @param value
+   * @return true
+   *
+   */
   bool GetDisplayConfigs(uint32_t *num_configs, uint32_t *configs) override;
+
+  /**
+   *
+   *
+   */
   bool GetDisplayName(uint32_t *size, char *name) override;
 
+  /**
+   *
+   *
+   */
   bool SetBroadcastRGB(const char *range_property) override;
 
+  /**
+   *
+   *
+   */
   void SetHDCPState(HWCContentProtection state,
                     HWCContentType content_type) override;
 
+  /**
+   *
+   *
+   */
   bool InitializeDisplay() override;
+
+  /**
+   *
+   *
+   */
   void PowerOn() override;
+
+  /**
+   *
+   *
+   */
   void UpdateDisplayConfig() override;
+
+  /**
+   *
+   *
+   */
   void SetColorCorrection(struct gamma_colors gamma, uint32_t contrast,
                           uint32_t brightness) const override;
+
+  /**
+   *
+   *
+   */
   void SetPipeCanvasColor(uint16_t bpc, uint16_t red, uint16_t green,
                           uint16_t blue, uint16_t alpha) const override;
+
+  /**
+   *
+   *
+   */
   void SetColorTransformMatrix(
       const float *color_transform_matrix,
       HWCColorTransform color_transform_hint) const override;
+
+  /**
+   *
+   *
+   */
   void Disable(const DisplayPlaneStateList &composition_planes) override;
+
+  /**
+   *
+   *
+   */
   bool Commit(const DisplayPlaneStateList &composition_planes,
               const DisplayPlaneStateList &previous_composition_planes,
               bool disable_explicit_fence, int32_t previous_fence,
               int32_t *commit_fence, bool *previous_fence_released) override;
 
+  /**
+   *
+   *
+   */
   uint32_t CrtcId() const {
     return crtc_id_;
   }
 
+  /**
+   *
+   *
+   */
   bool ConnectDisplay(const drmModeModeInfo &mode_info,
                       const drmModeConnector *connector, uint32_t config);
 
+  /**
+   *
+   *
+   */
   void SetDrmModeInfo(const std::vector<drmModeModeInfo> &mode_info);
+
+  /**
+   *
+   *
+   */
   void SetDisplayAttribute(const drmModeModeInfo &mode_info);
 
+  /**
+   *
+   *
+   */
   bool TestCommit(
       const std::vector<OverlayPlane> &commit_planes) const override;
 
+  /**
+   *
+   *
+   */
   bool PopulatePlanes(
       std::vector<std::unique_ptr<DisplayPlane>> &overlay_planes) override;
 
+  /**
+   *
+   *
+   */
   void NotifyClientsOfDisplayChangeStatus() override;
 
+  /**
+   *
+   *
+   */
   void ForceRefresh();
 
+  /**
+   *
+   *
+   */
   void IgnoreUpdates();
 
+  /**
+   *
+   *
+   */
   void HandleLazyInitialization() override;
 
  private:
+  /**
+   *
+   *
+   */
   void ShutDownPipe();
+
+  /**
+   *
+   *
+   */
   void GetDrmObjectPropertyValue(const char *name,
                                  const ScopedDrmObjectPropertyPtr &props,
                                  uint64_t *value) const;
+
+  /**
+   *
+   *
+   */
   void GetDrmObjectProperty(const char *name,
                             const ScopedDrmObjectPropertyPtr &props,
                             uint32_t *id) const;
+
+  /**
+   *
+   *
+   */
   void GetDrmHDCPObjectProperty(const char *name,
                                 const drmModeConnector *connector,
                                 const ScopedDrmObjectPropertyPtr &props,
                                 uint32_t *id, int *value = NULL) const;
+
+  /**
+   *
+   *
+   */
   float TransformGamma(float value, float gamma) const;
+
+  /**
+   *
+   *
+   */
   float TransformContrastBrightness(float value, float brightness,
                                     float contrast) const;
+
+  /**
+   *
+   *
+   */
   int64_t FloatToFixedPoint(float value) const;
+
+  /**
+   *
+   *
+   */
   void ApplyPendingCTM(struct drm_color_ctm *ctm,
                        struct drm_color_ctm_post_offset *ctm_post_offset) const;
+
+  /**
+   *
+   *
+   */
   void ApplyPendingLUT(struct drm_color_lut *lut) const;
+
+  /**
+   *
+   *
+   */
   bool ApplyPendingModeset(drmModeAtomicReqPtr property_set);
+
+  /**
+   *
+   *
+   */
   bool GetFence(drmModeAtomicReqPtr property_set, int32_t *out_fence);
+
+  /**
+   *
+   *
+   */
   bool CommitFrame(const DisplayPlaneStateList &comp_planes,
                    const DisplayPlaneStateList &previous_composition_planes,
                    drmModeAtomicReqPtr pset, uint32_t flags,
                    int32_t previous_fence, bool *previous_fence_released);
+
+  /**
+   *
+   *
+   */
   uint64_t DrmRGBA(uint16_t, uint16_t red, uint16_t green, uint16_t blue,
                    uint16_t alpha) const;
+
+  /**
+   *
+   *
+   */
   std::unique_ptr<DrmPlane> CreatePlane(uint32_t plane_id,
                                         uint32_t possible_crtcs);
 

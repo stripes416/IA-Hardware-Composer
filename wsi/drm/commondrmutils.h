@@ -14,11 +14,25 @@
 // limitations under the License.
 */
 
+/**
+ * \file
+ *
+ * DRM utility functions working with DRM_FORMAT_MODIFIERS
+ */
 #ifndef WSI_COMMONDRMUTILS_H_
 #define WSI_COMMONDRMUTILS_H_
 
 #include <drm_fourcc.h>
 
+/**
+ * Determine if given format is recognized and return number of planes.
+ *
+ * @param format DRM format modifier.
+ * @return 1 if number of planes is 1.
+ * @return 2 if number of planes is 2.
+ * @return 3 if number of planes is 3.
+ * @return 0 if the DRM format modifier is unknown.
+ */
 static size_t drm_bo_get_num_planes(uint32_t format) {
   switch (format) {
     case DRM_FORMAT_ABGR1555:
@@ -87,6 +101,14 @@ static size_t drm_bo_get_num_planes(uint32_t format) {
   return 0;
 }
 
+/**
+ * Dependent on parameter data - return specific drm modifier.
+ *
+ * @param format passed in drm format.
+ * @return I915_FORMAT_MOD_Y_TILE_CCS if
+ *         format == DRM_FORMAT_(XRGB || XBGR || ARGB || ABGR)8888.
+ * @return DRM_FORMAT_MOD_NONE otherwise.
+ */
 static uint64_t choose_drm_modifier(uint32_t format) {
 #ifdef ENABLE_RBC
   switch (format) {
